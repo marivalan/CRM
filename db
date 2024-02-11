@@ -1,0 +1,253 @@
+import tkinter as tk
+import sqlite3 as sq
+
+root = tk.Tk()
+root.title("Family")
+root.geometry("450x435")
+# creating a database and cursor
+
+customer_id = sq.connect("CRM")
+cur = customer_id.cursor()
+
+# creating a table
+
+cur.execute(""" CREATE TABLE db_CRM
+		(name text,
+		customer_id text,
+		department text,
+		complaint text,
+		contact_no integer)
+		 """)
+
+
+# creating entries and labels
+
+e_Name = tk.Entry(width=35)
+e_Name.grid(column=1, row=1)
+e_customer_id = tk.Entry(width=35)
+e_customer_id.grid(column=1, row=2)
+e_department = tk.Entry(width=35)
+e_department.grid(column=1, row=3)
+e_complaint = tk.Entry(width=35)
+e_complaint.grid(column=1, row=4)
+e_Contact_no = tk.Entry(width=35)
+e_Contact_no.grid(column=1, row=5)
+
+l_Name = tk.Label(text="Enter your name")
+l_Name.grid(column=0, row=1)
+l_customer_id = tk.Label(text="customer_id")
+l_customer_id.grid(column=0, row=2)
+l_department = tk.Label(text="Your department")
+l_department.grid(column=0, row=3)
+l_complaint = tk.Label(text="Your complaint")
+l_complaint.grid(column=0, row=4)
+l_Contact_no = tk.Label(text="Mobile no")
+l_Contact_no.grid(column=0, row=5)
+
+
+# creating fun
+def save():
+    customer_id = sq.connect("CRM")
+    cur = customer_id.cursor()
+
+    cur.execute("INSERT INTO db_CRM VALUES(:name, :customer_id, :department, :complaint, :contact_no)",
+                {
+                    'name': e_Name.get(),
+                    'customer_id': e_customer_id.get(),
+                    'department': e_department.get(),
+                    'complaint': e_complaint.get(),
+                    'contact_no': e_Contact_no.get()
+                })
+    customer_id.commit()
+    customer_id.close()
+
+    e_Name.delete(0, tk.END)
+    e_customer_id.delete(0, tk.END)
+    e_department.delete(0, tk.END)
+    e_complaint.delete(0, tk.END)
+    e_Contact_no.delete(0, tk.END)
+
+
+def show():
+    e_Name.delete(0, tk.END)
+    e_customer_id.delete(0, tk.END)
+    e_department.delete(0, tk.END)
+    e_complaint.delete(0, tk.END)
+    e_Contact_no.delete(0, tk.END)
+
+    customer_id = sq.connect("CRM")
+    cur = customer_id.cursor()
+    cur.execute("SELECT *, oid FROM db_CRM")
+    data = cur.fetchall()
+    print = (data)
+    x = ''
+    for i in data:
+        x += str(i[5]) + '	' + str(i[0]) + '\n'
+        t_show.delete("1.0", tk.END)
+    t_show.insert(tk.END, x)
+
+    customer_id.commit()
+    customer_id.close()
+
+
+def edit():
+    global pop
+    global ew2_id
+    global ew2_Name
+    global ew2_customer_id
+    global ew2_department
+    global ew2_complaint
+    global ew2_Contact_no
+
+    global win_open
+    if not win_open:
+        win_open = True
+
+        pop = tk.Tk()
+        pop.title("Edit")
+        pop.geometry("450x350")
+
+        # creating frame_1
+
+        frame_1 = tk.LabelFrame(pop)
+        frame_1.grid(column=0, row=0, columnspan=2)
+
+        lw2_id = tk.Label(frame_1, text="ID")
+        lw2_id.grid(column=0, row=0, ipadx=54)
+        ew2_id = tk.Entry(frame_1)
+        ew2_id.grid(column=1, row=0)
+        bw2_view = tk.Button(frame_1, text="View", command=view)
+        bw2_view.grid(column=2, row=0, ipadx=35)
+
+        # creating frame_2
+        frame_2 = tk.LabelFrame(pop)
+        frame_2.grid(column=0, row=8, columnspan=2)
+
+        bw2_delete = tk.Button(frame_2, text="Delete", command=delete)
+        bw2_delete.grid(column=1, row=0, columnspan=1)
+        bw2_update = tk.Button(frame_2, text="Update", command=update)
+        bw2_update.grid(column=2, row=0, columnspan=1)
+
+        ew2_Name = tk.Entry(pop, width=35)
+        ew2_Name.grid(column=1, row=2)
+        ew2_customer_id = tk.Entry(pop, width=35)
+        ew2_customer_id.grid(column=1, row=3)
+        ew2_department = tk.Entry(pop, width=35)
+        ew2_department.grid(column=1, row=4)
+        ew2_complaint = tk.Entry(pop, width=35)
+        ew2_complaint.grid(column=1, row=5)
+        ew2_Contact_no = tk.Entry(pop, width=35)
+        ew2_Contact_no.grid(column=1, row=6)
+
+        lw2_Name = tk.Label(pop, text="Enter your name")
+        lw2_Name.grid(column=0, row=2)
+        lw2_customer_id = tk.Label(pop, text="customer_id")
+        lw2_customer_id.grid(column=0, row=3)
+        lw2_department = tk.Label(pop, text="Your department")
+        lw2_department.grid(column=0, row=4)
+        lw2_complaint = tk.Label(pop, text="Your complaint")
+        lw2_complaint.grid(column=0, row=5)
+        lw2_Contact_no = tk.Label(pop, text="Mobile no")
+        lw2_Contact_no.grid(column=0, row=6)
+
+    else:
+        pop.destroy()
+        win_open = False
+
+def view():
+    ew2_Name.delete(0, tk.END)
+    ew2_customer_id.delete(0, tk.END)
+    ew2_department.delete(0, tk.END)
+    ew2_complaint.delete(0, tk.END)
+    ew2_Contact_no.delete(0, tk.END)
+
+    customer_id = sq.connect("CRM")
+    cur = customer_id.cursor()
+
+    cur.execute("SELECT * FROM db_CRM WHERE oid=" + str(ew2_id.get()))
+    id = cur.fetchall()
+
+    # inserting corresponding data into entries
+    for i in id:
+        ew2_Name.insert(0, i[0])
+        ew2_customer_id.insert(0, i[1])
+        ew2_department.insert(0, i[2])
+        ew2_complaint.insert(0, i[3])
+        ew2_Contact_no.insert(0, i[4])
+
+    customer_id.commit()
+    customer_id.close()
+
+
+def delete():
+    ew2_Name.delete(0, tk.END)
+    ew2_customer_id.delete(0, tk.END)
+    ew2_department.delete(0, tk.END)
+    ew2_complaint.delete(0, tk.END)
+    ew2_Contact_no.delete(0, tk.END)
+
+    customer_id = sq.connect("CRM")
+    cur = customer_id.cursor()
+
+    cur.execute("DELETE FROM db_CRM WHERE oid=" + str(ew2_id.get()))
+    id = cur.fetchall()
+
+    ew2_id.delete(0, tk.END)
+
+    customer_id.commit()
+    customer_id.close()
+
+
+def update():
+    customer_id = sq.connect("CRM")
+    cur = customer_id.cursor()
+
+    cur.execute("""UPDATE db_CRM SET
+		name = :name,
+		customer_id = :customer_id,
+		department = :department,
+		complaint = :complaint,
+		contact_no = :contact_no
+
+		where oid = :oid """,
+                {
+                    'name': ew2_Name.get(),
+                    'customer_id': ew2_customer_id.get(),
+                    'department': ew2_department.get(),
+                    'complaint': ew2_complaint.get(),
+                    'contact_no': ew2_Contact_no.get(),
+
+                    'oid': ew2_id.get()
+                })
+
+    ew2_Name.delete(0, tk.END)
+    ew2_customer_id.delete(0, tk.END)
+    ew2_department.delete(0, tk.END)
+    ew2_complaint.delete(0, tk.END)
+    ew2_Contact_no.delete(0, tk.END)
+
+    customer_id.commit()
+    customer_id.close()
+
+
+# creating buttons
+b_save = tk.Button(text="Save", command=save)
+b_save.grid(column=0, row=6, columnspan=3)
+
+b_show = tk.Button(text="Show", command=show)
+b_show.grid(column=0, row=7, pady=10, columnspan=3)
+
+t_show = tk.Text(height=10, width=45)
+t_show.grid(column=0, row=8, columnspan=3)
+
+b_edit = tk.Button(text="Edit", command=edit)
+b_edit.grid(column=0, row=9, columnspan=3, pady=10, ipadx=100)
+
+win_open = False
+
+# commiting changes and closing customer_id
+
+customer_id.commit()
+customer_id.close()
+
+root.mainloop()
